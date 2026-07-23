@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Saily · eSIM compatibility prototype</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="site-header">
+        <a class="brand" href="#">saily<span>®</span></a>
+        <button class="help" type="button">Help center <span aria-hidden="true">↗</span></button>
+      </header>
+
+      <section class="prototype-intro">
+        <p class="eyebrow">Product case · eSIM compatibility</p>
+        <h1>Two ways to help travelers buy the right eSIM.</h1>
+        <p class="intro-copy">Choose a concept, then click through its key decision states. Both flows validate the <strong>device that will use the eSIM</strong>—not necessarily the device used to buy it.</p>
+      </section>
+
+      <nav class="flow-switcher" aria-label="Prototype flows">
+        <button class="flow-tab active" data-flow="reminder" type="button"><span>01</span> Compatibility reminder</button>
+        <button class="flow-tab" data-flow="verification" type="button"><span>02</span> Verify target device <b>Recommended</b></button>
+      </nav>
+
+      <section class="phone-stage" aria-live="polite">
+        <div class="phone">
+          <div class="phone-top"><span></span><i></i><span></span></div>
+          <div class="screen" id="screen"></div>
+          <div class="home-indicator"></div>
+        </div>
+        <aside class="flow-notes" id="flow-notes"></aside>
+      </section>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>
