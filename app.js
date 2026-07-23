@@ -7,6 +7,7 @@ let selectedPlan = '10 GB';
 let checkedDevice = '';
 let pickerQuery = '';
 let pickerStatus = '';
+let selectedDevice = '';
 
 const shell = (title, body) => `<div class="saily-mobile-head"><button class="round-control" data-action="back" aria-label="Go back">‹</button><strong>${title}</strong><button class="round-control close" aria-label="Close">×</button></div><div class="content saily-content">${body}</div>`;
 const cta = (label, action, disabled = false) => `<button class="saily-cta" data-action="${action}" ${disabled ? 'disabled' : ''}>${label}</button>`;
@@ -47,7 +48,7 @@ function render(){
   else if(state === 'checkout') screen.innerHTML = checkout(false);
   else if(state === 'device-choice') screen.innerHTML = deviceChoice();
   else if(state === 'detected') screen.innerHTML = shell('Check compatibility', `<button class="back" data-action="device-choice">← Change device</button><p class="screen-label">This device</p><h2>iPhone 15 Pro</h2><div class="result"><strong>✓ Compatible with eSIM</strong><p>This device can install and use your Japan eSIM.</p></div>${cta('Continue to checkout','checkout')}`);
-  else if(state === 'search') screen.innerHTML = shell('Check compatibility', `<button class="back" data-action="device-choice">← Change device</button><p class="screen-label">Another device</p><h2>Find the device you’ll use</h2><input class="search" placeholder="Search iPhone, Samsung, Pixel…" autofocus /><div class="models static-models"><div class="model supported-model"><b>iPhone 13</b><small>✓ Supports eSIM</small></div><div class="model supported-model"><b>Samsung Galaxy S24</b><small>✓ Supports eSIM</small></div><div class="model unsupported-model"><b>Samsung Galaxy A14</b><small>✕ Doesn’t support eSIM</small></div><div class="model supported-model"><b>Google Pixel 9</b><small>✓ Supports eSIM</small></div></div>${cta('Continue to checkout','checkout')}`);
+  else if(state === 'search') screen.innerHTML = shell('Check compatibility', `<button class="back" data-action="device-choice">← Change device</button><p class="screen-label">Another device</p><h2>Find the device you’ll use</h2><input class="search" placeholder="Search iPhone, Samsung, Pixel…" autofocus /><div class="models static-models"><button class="model supported-model ${selectedDevice==='iPhone 13'?'selected-device':''}" data-action="choose-supported" data-device="iPhone 13" aria-pressed="${selectedDevice==='iPhone 13'}"><b>iPhone 13</b><small>✓ Supports eSIM</small></button><button class="model supported-model ${selectedDevice==='Samsung Galaxy S24'?'selected-device':''}" data-action="choose-supported" data-device="Samsung Galaxy S24" aria-pressed="${selectedDevice==='Samsung Galaxy S24'}"><b>Samsung Galaxy S24</b><small>✓ Supports eSIM</small></button><div class="model unsupported-model"><b>Samsung Galaxy A14</b><small>✕ Doesn’t support eSIM</small></div><button class="model supported-model ${selectedDevice==='Google Pixel 9'?'selected-device':''}" data-action="choose-supported" data-device="Google Pixel 9" aria-pressed="${selectedDevice==='Google Pixel 9'}"><b>Google Pixel 9</b><small>✓ Supports eSIM</small></button></div>${cta('Continue to checkout','checkout',!selectedDevice)}`);
   else if(state === 'compatible') screen.innerHTML = shell('Check compatibility', `<button class="back" data-action="search">← Change device</button><p class="screen-label">Another device</p><h2>iPhone 13</h2><div class="result"><strong>✓ Compatible with eSIM</strong><p>This device can install and use your Japan eSIM.</p></div>${cta('Continue to checkout','checkout')}`);
   else if(state === 'incompatible') screen.innerHTML = shell('Check compatibility', `<button class="back" data-action="search">← Choose another device</button><p class="screen-label">Another device</p><h2>Samsung Galaxy A14</h2><div class="result bad"><strong>This device doesn’t support eSIM</strong><p>Choose another compatible device before you buy this plan.</p></div>${cta('Choose another device','search')}`);
   else screen.innerHTML = shell('Checkout', `<p class="screen-label">Payment complete</p><h2>Your Japan eSIM is ready</h2><p class="sub">Install it on the compatible device you selected.</p><div class="result"><strong>✓ Purchase protected by device verification</strong></div>`);
@@ -61,7 +62,8 @@ function bind(){
     if(a==='continue-plans') state=flow==='reminder'?'reminder-checkout':'device-choice';
     else if(a==='select-this'){ target='this'; render(); return; }
     else if(a==='select-other'){ target='other'; render(); return; }
-    else if(a==='continue-device') state=target==='this'?'detected':'search';
+    else if(a==='continue-device'){ selectedDevice=''; state=target==='this'?'detected':'search'; }
+    else if(a==='choose-supported'){ selectedDevice=el.dataset.device; render(); return; }
     else if(a==='compatible') state='compatible';
     else if(a==='incompatible') state='incompatible';
     else if(a==='device-choice') state='device-choice';
@@ -79,5 +81,5 @@ function bind(){
   const pickerSearch=document.getElementById('picker-search');
   if(pickerSearch) pickerSearch.addEventListener('input',()=>{ pickerQuery=pickerSearch.value; pickerStatus=''; render(); document.getElementById('picker-search')?.focus(); });
 }
-document.querySelectorAll('.flow-tab').forEach(tab => tab.addEventListener('click', () => { flow=tab.dataset.flow; state='plans'; document.querySelectorAll('.flow-tab').forEach(t=>t.classList.toggle('active',t===tab)); render(); }));
+document.querySelectorAll('.flow-tab').forEach(tab => tab.addEventListener('click', () => { flow=tab.dataset.flow; state='plans'; selectedDevice=''; document.querySelectorAll('.flow-tab').forEach(t=>t.classList.toggle('active',t===tab)); render(); }));
 render();
