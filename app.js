@@ -15,7 +15,7 @@ const orderSummary = () => `<div class="checkout-card"><h3>Order summary</h3><di
 function renderNotes(){
   notes.innerHTML = flow === 'reminder'
     ? `<div class="note-number">FLOW 01 · LOW EFFORT</div><h3>Place the reminder in the familiar checkout.</h3><p>The traveler selects their plan as usual. A clearly labelled compatibility card appears in checkout <strong>before payment methods</strong>.</p><ul class="note-list"><li><strong>Entry point:</strong> plan selection → checkout</li><li><strong>Message:</strong> check the device that will use the eSIM</li><li><strong>Trade-off:</strong> user self-confirms compatibility</li></ul>`
-    : `<div class="note-number">FLOW 02 · RECOMMENDED</div><h3>Confirm the target device before checkout.</h3><p>Immediately after choosing a plan, Saily asks which device will use it. Only a compatible device reaches the existing payment screen.</p><ul class="note-list"><li><strong>Entry point:</strong> after tapping Continue on plans</li><li><strong>Supports:</strong> buying from a different device</li><li><strong>Outcome:</strong> incompatible models cannot proceed to payment</li></ul>`;
+    : `<div class="note-number">FLOW 02</div><h3>Confirm the target device before checkout.</h3><p>Immediately after choosing a plan, Saily asks which device will use it. Only a compatible device reaches the existing payment screen.</p><ul class="note-list"><li><strong>Entry point:</strong> after tapping Continue on plans</li><li><strong>Supports:</strong> buying from a different device</li><li><strong>Outcome:</strong> incompatible models cannot proceed to payment</li></ul>`;
 }
 
 function plans(){
