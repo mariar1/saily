@@ -25,8 +25,9 @@ function plans(){
 function devicePicker(){
   const devices=[['iPhone 13','compatible'],['Samsung Galaxy S24','compatible'],['Samsung Galaxy A14','incompatible'],['Google Pixel 9','compatible']];
   const list=devices.filter(([name])=>name.toLowerCase().includes(pickerQuery.toLowerCase()));
-  const result = pickerStatus==='compatible' ? `<div class="picker-result"><strong>✓ ${checkedDevice} supports eSIM</strong><p>You can use this device with your Japan plan.</p>${cta('Use this device','use-device')}</div>` : pickerStatus==='incompatible' ? `<div class="picker-result bad"><strong>${checkedDevice} doesn’t support eSIM</strong><p>Choose another compatible device to continue.</p></div>` : `<div class="picker-list">${list.map(([name,status])=>`<button class="picker-device" data-picker-device="${name}" data-picker-status="${status}"><span><b>${name}</b><small class="device-status ${status}">${status==='compatible'?'✓ Supports eSIM':'✕ Doesn’t support eSIM'}</small></span><i>›</i></button>`).join('')}</div>`;
-  return `<div class="picker-backdrop"><section class="device-picker" role="dialog" aria-label="Supported devices"><div class="picker-handle"></div><div class="picker-title"><strong>Check supported devices</strong><button data-action="close-picker" aria-label="Close">×</button></div><p>Find the device that will use this eSIM.</p><input id="picker-search" class="search" value="${pickerQuery}" placeholder="Search iPhone, Samsung, Pixel…" autofocus />${result}</section></div>`;
+  const listMarkup = `<div class="picker-list">${list.map(([name,status])=>`<button class="picker-device" data-picker-device="${name}" data-picker-status="${status}"><span><b>${name}</b><small class="device-status ${status}">${status==='compatible'?'✓ Supports eSIM · Select':'✕ Doesn’t support eSIM'}</small></span></button>`).join('')}</div>`;
+  const message = pickerStatus==='incompatible' ? `<div class="picker-message bad"><strong>${checkedDevice} isn’t compatible.</strong><p>Select a device marked “Supports eSIM”.</p></div>` : '';
+  return `<div class="picker-backdrop"><section class="device-picker" role="dialog" aria-label="Supported devices"><div class="picker-handle"></div><div class="picker-title"><strong>Check supported devices</strong><button data-action="close-picker" aria-label="Close">×</button></div><p>Status is shown for every device. Select a compatible one to continue.</p><input id="picker-search" class="search" value="${pickerQuery}" placeholder="Search iPhone, Samsung, Pixel…" autofocus />${listMarkup}${message}</section></div>`;
 }
 
 function checkout(includeReminder = false){
@@ -76,7 +77,7 @@ function bind(){
   }));
   const check=document.getElementById('verified');
   if(check) check.addEventListener('change',()=>{state=check.checked?'reminder-checked':'reminder-checkout';render();});
-  document.querySelectorAll('[data-picker-device]').forEach(el=>el.addEventListener('click',()=>{ checkedDevice=el.dataset.pickerDevice; pickerStatus=el.dataset.pickerStatus; render(); }));
+  document.querySelectorAll('[data-picker-device]').forEach(el=>el.addEventListener('click',()=>{ checkedDevice=el.dataset.pickerDevice; pickerStatus=el.dataset.pickerStatus; state=pickerStatus==='compatible'?'reminder-checked':'reminder-picker'; render(); }));
   const pickerSearch=document.getElementById('picker-search');
   if(pickerSearch) pickerSearch.addEventListener('input',()=>{ pickerQuery=pickerSearch.value; pickerStatus=''; render(); document.getElementById('picker-search')?.focus(); });
 }
