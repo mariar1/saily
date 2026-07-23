@@ -4,6 +4,9 @@ let flow = 'reminder';
 let state = 'plans';
 let target = 'this';
 let selectedPlan = '10 GB';
+let checkedDevice = '';
+let pickerQuery = '';
+let pickerStatus = '';
 
 const shell = (title, body) => `<div class="saily-mobile-head"><button class="round-control" data-action="back" aria-label="Go back">‹</button><strong>${title}</strong><button class="round-control close" aria-label="Close">×</button></div><div class="content saily-content">${body}</div>`;
 const cta = (label, action, disabled = false) => `<button class="saily-cta" data-action="${action}" ${disabled ? 'disabled' : ''}>${label}</button>`;
@@ -19,9 +22,18 @@ function plans(){
   return shell('Available plans', `<div class="country-chip top"><span>🇯🇵</span> Japan</div><div class="ultra-banner"><b>Ultra</b><span>Enjoy big perks with 63% savings.</span></div><div class="plan-list">${[['1 GB','7 days','US$3.99'],['3 GB','30 days','US$7.99'],['5 GB','30 days','US$10.99'],['10 GB','30 days','US$17.99']].map(([name,days,price]) => `<button class="plan-choice ${selectedPlan===name?'is-plan-selected':''}" data-plan="${name}"><span class="plan-radio"></span><span><b>${name}</b><small>${days}</small><em>▣ 3% in Saily credits</em></span><strong>${price}</strong></button>`).join('')}</div>${cta('Continue','continue-plans')}`);
 }
 
+function devicePicker(){
+  const devices=[['iPhone 13','compatible'],['Samsung Galaxy S24','compatible'],['Samsung Galaxy A14','incompatible'],['Google Pixel 9','compatible']];
+  const list=devices.filter(([name])=>name.toLowerCase().includes(pickerQuery.toLowerCase()));
+  const result = pickerStatus==='compatible' ? `<div class="picker-result"><strong>✓ ${checkedDevice} supports eSIM</strong><p>You can use this device with your Japan plan.</p>${cta('Use this device','use-device')}</div>` : pickerStatus==='incompatible' ? `<div class="picker-result bad"><strong>${checkedDevice} doesn’t support eSIM</strong><p>Choose another compatible device to continue.</p></div>` : `<div class="picker-list">${list.map(([name,status])=>`<button class="picker-device" data-picker-device="${name}" data-picker-status="${status}">${name}<span>›</span></button>`).join('')}</div>`;
+  return `<div class="picker-backdrop"><section class="device-picker" role="dialog" aria-label="Supported devices"><div class="picker-handle"></div><div class="picker-title"><strong>Check supported devices</strong><button data-action="close-picker" aria-label="Close">×</button></div><p>Find the device that will use this eSIM.</p><input id="picker-search" class="search" value="${pickerQuery}" placeholder="Search iPhone, Samsung, Pixel…" autofocus />${result}<button class="text-link picker-all" data-action="all-devices">See all supported devices</button></section></div>`;
+}
+
 function checkout(includeReminder = false){
-  const reminder = includeReminder ? `<div class="compat-card"><div><b>Will the device you use support eSIM?</b><p>You can buy this plan on this device and install it later on another compatible device.</p><button class="text-link" data-action="supported">Check supported devices</button></div><label class="check-row"><input id="verified" type="checkbox" ${state==='reminder-checked'?'checked':''}/><span>I’ve checked my device</span></label></div>` : '';
-  return shell('Checkout', `${orderSummary()}${reminder}<div class="checkout-card payment-card"><h3>Select a payment method</h3><button class="payment-option"><b> Pay</b><span>⌃</span></button><button class="payment-option"><b>Credit or debit card</b><span>⌄</span></button>${cta('Buy with  Pay','paid',includeReminder && state!=='reminder-checked')}</div>`);
+  const isPicker=state==='reminder-picker';
+  const verified=checkedDevice ? `<span class="verified-device">✓ ${checkedDevice} verified</span>` : '';
+  const reminder = includeReminder ? `<div class="compat-card"><div><b>Will the device you use support eSIM?</b><p>You can buy this plan on this device and install it later on another compatible device.</p><button class="text-link" data-action="open-device-picker">Check supported devices</button>${verified}</div><label class="check-row"><input id="verified" type="checkbox" ${state==='reminder-checked'?'checked':''}/><span>I’ve checked my device</span></label></div>` : '';
+  return shell('Checkout', `${orderSummary()}${reminder}<div class="checkout-card payment-card"><h3>Select a payment method</h3><button class="payment-option"><b> Pay</b><span>⌃</span></button><button class="payment-option"><b>Credit or debit card</b><span>⌄</span></button>${cta('Buy with  Pay','paid',includeReminder && state!=='reminder-checked')}</div>${isPicker?devicePicker():''}`);
 }
 
 function deviceChoice(){
@@ -31,7 +43,7 @@ function deviceChoice(){
 function render(){
   renderNotes();
   if(state === 'plans') screen.innerHTML = plans();
-  else if(state === 'reminder-checkout' || state === 'reminder-checked') screen.innerHTML = checkout(true);
+  else if(state === 'reminder-checkout' || state === 'reminder-checked' || state === 'reminder-picker') screen.innerHTML = checkout(true);
   else if(state === 'checkout') screen.innerHTML = checkout(false);
   else if(state === 'device-choice') screen.innerHTML = deviceChoice();
   else if(state === 'detected') screen.innerHTML = shell('Check compatibility', `<button class="back" data-action="device-choice">← Change device</button><p class="screen-label">This device</p><h2>iPhone 15 Pro</h2><div class="result"><strong>✓ Compatible with eSIM</strong><p>This device can install and use your Japan eSIM.</p></div>${cta('Continue to checkout','checkout')}`);
@@ -56,12 +68,18 @@ function bind(){
     else if(a==='search') state='search';
     else if(a==='checkout') state='checkout';
     else if(a==='paid') state='paid';
-    else if(a==='supported') alert('Supported-device list\n\n• iPhone XS and newer\n• Google Pixel 3 and newer\n• Samsung Galaxy S20 and newer\n\nAvailability can vary by model and region.');
+    else if(a==='open-device-picker'){ pickerQuery=''; pickerStatus=''; state='reminder-picker'; }
+    else if(a==='close-picker'){ pickerStatus=''; state='reminder-checkout'; }
+    else if(a==='use-device'){ state='reminder-checked'; }
+    else if(a==='all-devices') alert('Supported-device list\n\n• iPhone XS and newer\n• Google Pixel 3 and newer\n• Samsung Galaxy S20 and newer\n\nAvailability can vary by model and region.');
     else if(a==='back') state='plans';
     render();
   }));
   const check=document.getElementById('verified');
   if(check) check.addEventListener('change',()=>{state=check.checked?'reminder-checked':'reminder-checkout';render();});
+  document.querySelectorAll('[data-picker-device]').forEach(el=>el.addEventListener('click',()=>{ checkedDevice=el.dataset.pickerDevice; pickerStatus=el.dataset.pickerStatus; render(); }));
+  const pickerSearch=document.getElementById('picker-search');
+  if(pickerSearch) pickerSearch.addEventListener('input',()=>{ pickerQuery=pickerSearch.value; pickerStatus=''; render(); });
 }
 document.querySelectorAll('.flow-tab').forEach(tab => tab.addEventListener('click', () => { flow=tab.dataset.flow; state='plans'; document.querySelectorAll('.flow-tab').forEach(t=>t.classList.toggle('active',t===tab)); render(); }));
 render();
