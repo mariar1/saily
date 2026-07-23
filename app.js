@@ -79,7 +79,7 @@ function bind(){
   if(check) check.addEventListener('change',()=>{state=check.checked?'reminder-checked':'reminder-checkout';render();});
   document.querySelectorAll('[data-picker-device]').forEach(el=>el.addEventListener('click',()=>{ checkedDevice=el.dataset.pickerDevice; pickerStatus=el.dataset.pickerStatus; render(); }));
   const pickerSearch=document.getElementById('picker-search');
-  if(pickerSearch) pickerSearch.addEventListener('input',()=>{ pickerQuery=pickerSearch.value; pickerStatus=''; render(); });
+  if(pickerSearch) pickerSearch.addEventListener('input',()=>{ pickerQuery=pickerSearch.value; pickerStatus=''; render(); document.getElementById('picker-search')?.focus(); });
 }
 document.querySelectorAll('.flow-tab').forEach(tab => tab.addEventListener('click', () => { flow=tab.dataset.flow; state='plans'; document.querySelectorAll('.flow-tab').forEach(t=>t.classList.toggle('active',t===tab)); render(); }));
 render();
